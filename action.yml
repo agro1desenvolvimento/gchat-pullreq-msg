@@ -1,0 +1,78 @@
+name: 'Google Chat Pull Request Message'
+description: 'Send a message to Google Chat when a pull request is opened, reopened or ready for review'
+
+inputs:
+  webhook-url:
+    description: 'Google Chat webhook URL'
+    required: true
+
+runs:
+  using: "composite"
+  steps:
+    - name: Send Message
+      shell: bash
+      run: |
+        DATA=$(cat <<EOF
+        {
+          "cardsV2": [
+            {
+              "cardId": "card-pr",
+              "card": {
+                "header": {
+                  "title": "New Pull Request",
+                  "subtitle": "${{ github.repository }}",
+                  "imageUrl": "${{ github.event.pull_request.user.avatar_url }}",
+                  "imageType": "CIRCLE"
+                },
+                "sections": [
+                  {
+                    "collapsible": false,
+                    "widgets": [
+                      {
+                        "textParagraph": {
+                          "text": "${{ github.event.pull_request.title }}",
+                          "maxLines": 2
+                        }
+                      },
+                      {
+                        "divider": {}
+                      },
+                      {
+                        "buttonList": {
+                          "buttons": [
+                            {
+                              "text": "View Pull Request",
+                              "type": "FILLED",
+                              "onClick": {
+                                "openLink": {
+                                  "url": "${{ github.event.pull_request.html_url }}"
+                                }
+                              }
+                            },
+                            {
+                              "text": "Open Repository",
+                              "type": "FILLED",
+                              "onClick": {
+                                "openLink": {
+                                  "url": "${{ github.server_url }}/${{ github.repository }}"
+                                }
+                              }
+                            }
+                          ]
+                        }
+                      }
+                    ]
+                  }
+                ]
+              }
+            }
+          ]
+        }
+        EOF
+        )
+        echo $DATA
+        echo ${{ inputs.webhook-url }}
+        curl -X POST "${{ inputs.webhook-url }}" -H 'Content-Type: application/json' -d "$DATA" 
+
+
+
