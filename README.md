@@ -1,7 +1,7 @@
 # Google Chat Pull Request Message
 
 A GitHub Action to notify Google Chat when a pull request is opened, reopened, or ready for review.
-
+![alt text](image.png)
 ## Inputs
 
 | Name         | Description                           | Required |
@@ -24,7 +24,7 @@ jobs:
     steps:
       (...)
       - name: Send PR notification to Google Chat
-        uses: agro1desenvolvimento/gchat-release-msg@v1
+        uses: agro1desenvolvimento/gchat-pullreq-msg@v1
         if: github.event.pull_request.draft == false # remove that line to notify on draft PRs too
         with:
           webhook-url: ${{ secrets.GOOGLECHAT_WEBHOOK_PR_URL }}
